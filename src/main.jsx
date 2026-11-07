@@ -1,10 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router'
 import './index.css'
-import App from './App.jsx'
+import App from './app/App.jsx'
 
+// Starting point of the app: put <App /> into the page's "root" box.
+// <BrowserRouter> lets the app switch pages based on the web address.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </StrictMode>,
 )

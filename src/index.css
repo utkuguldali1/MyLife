@@ -2,5 +2,15 @@
 @import "tailwindcss";
 
 /* Dark mode is switched on by adding a "dark" class to the page
-   (this is what our light/dark toggle will do later). */
+   (this is what our light/dark toggle does). */
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* Use the Inter font (loaded in index.html) for all text. */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tell the browser to draw scrollbars and form controls in dark style too. */
+.dark {
+  color-scheme: dark;
+}
