@@ -2,7 +2,8 @@
 //   icon:        the icon component to show (from lucide-react)
 //   title:       short bold message
 //   description: one sentence of explanation
-export default function EmptyState({ icon: Icon, title, description }) {
+//   children:    optional button(s) underneath
+export default function EmptyState({ icon: Icon, title, description, children }) {
   return (
     <div className="flex flex-col items-center rounded-xl border border-dashed border-neutral-300 px-6 py-16 text-center dark:border-neutral-700">
       {Icon && (
@@ -16,6 +17,7 @@ export default function EmptyState({ icon: Icon, title, description }) {
           {description}
         </p>
       )}
+      {children && <div className="mt-5">{children}</div>}
     </div>
   )
 }

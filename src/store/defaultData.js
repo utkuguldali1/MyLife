@@ -31,8 +31,8 @@ export function createDefaultData() {
     categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
     academicTypes: DEFAULT_ACADEMIC_TYPES.map((t) => ({ ...t })),
     tasks: [], // one-off to-dos (household, personal and academic)
-    courses: [], // university courses (Step 4)
-    events: [], // exams, presentations (Step 4)
+    courses: [], // university courses with lecture times and links
+    events: [], // exams, presentations (things on a date)
     routines: [], // recurring tasks (Step 5)
     completionLog: [], // history of completed routines (Step 5, future statistics)
   }

@@ -5,45 +5,53 @@ import { createId } from '../../lib/ids'
 import { addDaysISO } from '../../lib/dates'
 import { PRIORITIES } from '../../lib/priorities'
 import Button from '../../components/ui/Button'
+import ChoiceButton from '../../components/ui/ChoiceButton'
 import Modal from '../../components/ui/Modal'
 import { Field, Input, Select, Textarea } from '../../components/ui/Field'
 import Checklist from './Checklist'
 
-// A row of small toggle buttons where exactly one is selected
-function ChoiceButton({ selected, onClick, children }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={`inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm transition-colors ${
-        selected
-          ? 'bg-indigo-50 font-medium text-indigo-700 ring-1 ring-indigo-600/30 ring-inset dark:bg-indigo-500/15 dark:text-indigo-300 dark:ring-indigo-400/30'
-          : 'text-neutral-600 ring-1 ring-neutral-300 ring-inset hover:bg-neutral-50 dark:text-neutral-400 dark:ring-neutral-700 dark:hover:bg-neutral-800'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
 // The pop-up for creating a new task or editing an existing one.
 //   task:              the task being edited, or null for a new one
-//   defaultCategoryId: preselected category for new tasks
-export default function TaskForm({ open, task, defaultCategoryId, today, onClose }) {
+//   academic:          true for university tasks (course + type instead of category)
+//   defaultCategoryId: preselected category for new everyday tasks
+//   defaultCourseId:   preselected course for new academic tasks
+//   defaultDate:       preselected due date for new tasks
+export default function TaskForm({
+  open,
+  task,
+  academic = task?.categoryId === ACADEMIC_CATEGORY_ID,
+  defaultCategoryId,
+  defaultCourseId,
+  defaultDate,
+  today,
+  onClose,
+}) {
   const categories = useAppStore((s) => s.categories)
+  const courses = useAppStore((s) => s.courses)
+  const academicTypes = useAppStore((s) => s.academicTypes)
   const addTask = useAppStore((s) => s.addTask)
   const updateTask = useAppStore((s) => s.updateTask)
 
   const isEditing = Boolean(task)
   const dailyCategories = categories.filter((c) => c.id !== ACADEMIC_CATEGORY_ID)
+  const taskTypes = academicTypes.filter((t) => t.kind === 'task')
+  // Archived courses are hidden — unless this task already belongs to one
+  const courseOptions = courses.filter((c) => !c.archived || c.id === task?.courseId)
 
   // The form keeps its own copy of the values until you press Save
   const [title, setTitle] = useState(task?.title ?? '')
   const [categoryId, setCategoryId] = useState(
     task ? (task.categoryId ?? '') : (defaultCategoryId ?? dailyCategories[0]?.id ?? ''),
   )
-  const [dueDate, setDueDate] = useState(task ? (task.dueDate ?? '') : today)
+  const [courseId, setCourseId] = useState(
+    task ? (task.courseId ?? '') : (defaultCourseId ?? courseOptions[0]?.id ?? ''),
+  )
+  const [typeId, setTypeId] = useState(task ? (task.typeId ?? '') : (taskTypes[0]?.id ?? ''))
+  // Everyday tasks start as "today"; university tasks start without a date,
+  // so you pick the real deadline
+  const [dueDate, setDueDate] = useState(
+    task ? (task.dueDate ?? '') : (defaultDate ?? (academic ? '' : today)),
+  )
   const [priority, setPriority] = useState(task?.priority ?? 'medium')
   const [notes, setNotes] = useState(task?.notes ?? '')
   const [checklist, setChecklist] = useState(task?.checklist ?? [])
@@ -53,7 +61,9 @@ export default function TaskForm({ open, task, defaultCategoryId, today, onClose
     if (!title.trim()) return
     const values = {
       title: title.trim(),
-      categoryId: categoryId || null,
+      ...(academic
+        ? { categoryId: ACADEMIC_CATEGORY_ID, courseId: courseId || null, typeId: typeId || null }
+        : { categoryId: categoryId || null }),
       dueDate: dueDate || null,
       priority,
       notes,
@@ -70,7 +80,9 @@ export default function TaskForm({ open, task, defaultCategoryId, today, onClose
     <Modal
       open={open}
       onClose={onClose}
-      title={isEditing ? 'Edit task' : 'New task'}
+      title={
+        isEditing ? 'Edit task' : academic ? 'New assignment or homework' : 'New task'
+      }
       footer={
         <>
           <Button onClick={onClose}>Cancel</Button>
@@ -85,21 +97,46 @@ export default function TaskForm({ open, task, defaultCategoryId, today, onClose
           <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Do the laundry"
+            placeholder={academic ? 'e.g. Exercise sheet 5' : 'e.g. Do the laundry'}
             data-autofocus
           />
         </Field>
 
-        <Field label="Category">
-          <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-            {dailyCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-            <option value="">No category</option>
-          </Select>
-        </Field>
+        {academic ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Course">
+              <Select value={courseId} onChange={(e) => setCourseId(e.target.value)}>
+                {courseOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+                <option value="">No course</option>
+              </Select>
+            </Field>
+            <Field label="Type">
+              <Select value={typeId} onChange={(e) => setTypeId(e.target.value)}>
+                {taskTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+                <option value="">No type</option>
+              </Select>
+            </Field>
+          </div>
+        ) : (
+          <Field label="Category">
+            <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+              {dailyCategories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+              <option value="">No category</option>
+            </Select>
+          </Field>
+        )}
 
         <div>
           <span className="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-300">

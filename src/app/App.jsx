@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import Layout from './Layout'
 import DashboardPage from '../features/dashboard/DashboardPage'
 import AcademicPage from '../features/academic/AcademicPage'
+import CourseDetailPage from '../features/academic/CourseDetailPage'
 import DailyLifePage from '../features/daily-life/DailyLifePage'
 import RoutinesPage from '../features/routines/RoutinesPage'
 import CalendarPage from '../features/calendar/CalendarPage'
@@ -15,6 +16,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/academic" element={<AcademicPage />} />
+        <Route path="/academic/courses/:courseId" element={<CourseDetailPage />} />
         <Route path="/daily-life" element={<DailyLifePage />} />
         <Route path="/routines" element={<RoutinesPage />} />
         <Route path="/calendar" element={<CalendarPage />} />

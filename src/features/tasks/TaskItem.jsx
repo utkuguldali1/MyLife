@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  AlertCircle,
   AlertTriangle,
   CalendarClock,
   CalendarDays,
@@ -33,7 +34,9 @@ function dueLabelInSentence(isoDate, today) {
 //   timing:   from getTaskTiming() — tells us if it was carried over
 //   today:    today's date
 //   onEdit:   opens the edit pop-up
-export default function TaskItem({ task, category, timing, today, onEdit }) {
+//   badge:    replaces the category label (academic tasks show their course instead)
+//   extra:    more small info next to the badge (e.g. "Assignment")
+export default function TaskItem({ task, category, timing, today, onEdit, badge, extra }) {
   const toggleTaskDone = useAppStore((s) => s.toggleTaskDone)
   const postponeTask = useAppStore((s) => s.postponeTask)
   const deleteTask = useAppStore((s) => s.deleteTask)
@@ -89,7 +92,8 @@ export default function TaskItem({ task, category, timing, today, onEdit }) {
           </button>
 
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-            <CategoryBadge category={category} />
+            {extra}
+            {badge ?? <CategoryBadge category={category} />}
 
             {timing?.carriedOverFrom && !isDone && (
               <span className="inline-flex items-center gap-1 font-medium text-amber-600 dark:text-amber-400">
@@ -98,7 +102,14 @@ export default function TaskItem({ task, category, timing, today, onEdit }) {
               </span>
             )}
 
-            {task.dueDate && !timing?.carriedOverFrom && task.dueDate !== today && (
+            {timing?.overdueSince && !isDone && (
+              <span className="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-400">
+                <AlertCircle size={13} />
+                Overdue · was due {dueLabelInSentence(timing.overdueSince, today)}
+              </span>
+            )}
+
+            {task.dueDate && !timing?.carriedOverFrom && !timing?.overdueSince && task.dueDate !== today && (
               <span className="inline-flex items-center gap-1">
                 <CalendarDays size={13} />
                 {formatDateLabel(task.dueDate, today)}

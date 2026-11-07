@@ -5,6 +5,9 @@ import { createDefaultData, DATA_KEYS, DATA_VERSION } from './defaultData'
 import { createSampleData } from './sampleData'
 import { createCategorySlice } from './slices/categorySlice'
 import { createTaskSlice } from './slices/taskSlice'
+import { createCourseSlice } from './slices/courseSlice'
+import { createEventSlice } from './slices/eventSlice'
+import { createAcademicTypeSlice } from './slices/academicTypeSlice'
 
 // Keep only the data lists (not the action functions) — used for saving and backups.
 export function pickData(state) {
@@ -27,6 +30,9 @@ export const useAppStore = create(
       ...createDefaultData(),
       ...createCategorySlice(set),
       ...createTaskSlice(set),
+      ...createCourseSlice(set),
+      ...createEventSlice(set),
+      ...createAcademicTypeSlice(set),
 
       // ── Whole-data actions (Settings page) ──
       replaceAllData(data) {

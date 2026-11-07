@@ -28,6 +28,11 @@ describe('getTaskTiming', () => {
       daysLate: 2,
     })
   })
+  it('marks late academic tasks as overdue instead of carrying them over', () => {
+    expect(
+      getTaskTiming(task({ title: 'a', dueDate: '2026-11-04', categoryId: 'academic' }), today),
+    ).toEqual({ group: 'overdue', overdueSince: '2026-11-04', daysLate: 3 })
+  })
   it('puts future tasks in "Upcoming"', () => {
     expect(getTaskTiming(task({ title: 'a', dueDate: '2026-11-08' }), today)).toEqual({
       group: 'upcoming',
@@ -44,6 +49,8 @@ describe('groupTasks', () => {
     task({ title: 'late-2', dueDate: '2026-11-05' }),
     task({ title: 'late-1', dueDate: '2026-11-06' }),
     task({ title: 'nodate' }),
+    task({ title: 'uni-late-1', dueDate: '2026-11-06', categoryId: 'academic' }),
+    task({ title: 'uni-late-3', dueDate: '2026-11-04', categoryId: 'academic' }),
     task({ title: 'done-old', status: 'done', completedAt: '2026-11-05T09:00:00Z' }),
     task({ title: 'done-new', status: 'done', completedAt: '2026-11-06T09:00:00Z' }),
   ]
@@ -52,6 +59,9 @@ describe('groupTasks', () => {
 
   it('sorts today: carried over first (oldest first), then by priority', () => {
     expect(titles(groups.today)).toEqual(['late-2', 'late-1', 'today-high', 'today-low'])
+  })
+  it('lists overdue academic tasks oldest first', () => {
+    expect(titles(groups.overdue)).toEqual(['uni-late-3', 'uni-late-1'])
   })
   it('sorts upcoming by date', () => {
     expect(titles(groups.upcoming)).toEqual(['future-soon', 'future-low'])
