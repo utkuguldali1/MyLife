@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router'
+import { Link, Outlet } from 'react-router'
+import { Settings } from 'lucide-react'
 import Sidebar from '../components/layout/Sidebar'
 import MobileNav from '../components/layout/MobileNav'
 import AppLogo from '../components/layout/AppLogo'
@@ -18,7 +19,16 @@ export default function Layout() {
       {/* Top bar — phones only */}
       <header className="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-200 bg-white/90 px-4 py-3 backdrop-blur md:hidden dark:border-neutral-800 dark:bg-neutral-950/90">
         <AppLogo />
-        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <div className="flex items-center gap-1">
+          <Link
+            to="/settings"
+            aria-label="Settings"
+            className="rounded-md px-2.5 py-1.5 text-neutral-600 hover:bg-neutral-200/60 dark:text-neutral-400 dark:hover:bg-neutral-800"
+          >
+            <Settings size={16} />
+          </Link>
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        </div>
       </header>
 
       {/* Page content. "md:pl-60" leaves room for the sidebar on larger screens;

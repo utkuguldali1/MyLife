@@ -1,22 +1,15 @@
-import { useState } from 'react'
 import { LayoutDashboard } from 'lucide-react'
 import PageHeader from '../../components/layout/PageHeader'
 import EmptyState from '../../components/ui/EmptyState'
+import { useToday } from '../../hooks/useToday'
+import { formatLongDate } from '../../lib/dates'
 
 export default function DashboardPage() {
-  // Today's date written out, e.g. "Saturday, November 7".
-  // useState(() => ...) works it out once when the page opens.
-  const [today] = useState(() =>
-    new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    }),
-  )
+  const today = useToday()
 
   return (
     <>
-      <PageHeader title="Today" description={today} />
+      <PageHeader title="Today" description={formatLongDate(today)} />
       <EmptyState
         icon={LayoutDashboard}
         title="Your daily overview"

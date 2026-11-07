@@ -1,0 +1,58 @@
+import { daysBetween } from './dates'
+import { PRIORITY_RANK } from './priorities'
+
+// Works out where a not-yet-done task belongs today.
+//   - no date            → "noDate"
+//   - due today          → "today"
+//   - due in the past    → "today" too, but marked as carried over
+//                          (so you get a warning instead of a lost task)
+//   - due in the future  → "upcoming"
+export function getTaskTiming(task, today) {
+  if (!task.dueDate) return { group: 'noDate' }
+  if (task.dueDate < today) {
+    return {
+      group: 'today',
+      carriedOverFrom: task.dueDate,
+      daysLate: daysBetween(task.dueDate, today),
+    }
+  }
+  if (task.dueDate === today) return { group: 'today' }
+  return { group: 'upcoming' }
+}
+
+function byPriorityThenCreated(a, b) {
+  const rank = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
+  if (rank !== 0) return rank
+  return (a.createdAt ?? '').localeCompare(b.createdAt ?? '')
+}
+
+// Splits a list of tasks into the sections shown on the Daily Life page.
+export function groupTasks(tasks, today) {
+  const groups = { today: [], upcoming: [], noDate: [], completed: [] }
+
+  for (const task of tasks) {
+    if (task.status === 'done') {
+      groups.completed.push(task)
+    } else {
+      groups[getTaskTiming(task, today).group].push(task)
+    }
+  }
+
+  // Today: carried-over tasks first (oldest first), then by priority
+  groups.today.sort((a, b) => {
+    const aLate = a.dueDate < today
+    const bLate = b.dueDate < today
+    if (aLate !== bLate) return aLate ? -1 : 1
+    if (aLate && a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate)
+    return byPriorityThenCreated(a, b)
+  })
+  // Upcoming: soonest first, then by priority
+  groups.upcoming.sort(
+    (a, b) => a.dueDate.localeCompare(b.dueDate) || byPriorityThenCreated(a, b),
+  )
+  groups.noDate.sort(byPriorityThenCreated)
+  // Completed: most recently completed first
+  groups.completed.sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
+
+  return groups
+}
