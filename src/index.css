@@ -1,0 +1,6 @@
+/* Load Tailwind CSS */
+@import "tailwindcss";
+
+/* Dark mode is switched on by adding a "dark" class to the page
+   (this is what our light/dark toggle will do later). */
+@custom-variant dark (&:where(.dark, .dark *));
