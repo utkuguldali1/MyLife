@@ -13,7 +13,11 @@ export default function Modal({ open, onClose, title, children, footer, size = '
   useEffect(() => {
     const dialog = dialogRef.current
     if (!dialog) return
-    if (open && !dialog.open) dialog.showModal()
+    if (open && !dialog.open) {
+      dialog.showModal()
+      // Put the cursor in the field marked with data-autofocus (if any)
+      dialog.querySelector('[data-autofocus]')?.focus()
+    }
     if (!open && dialog.open) dialog.close()
   }, [open])
 
