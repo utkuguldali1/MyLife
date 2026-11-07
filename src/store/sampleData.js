@@ -1,5 +1,6 @@
 import { addDaysISO, todayISO } from '../lib/dates'
 import { createId } from '../lib/ids'
+import { firstOccurrenceOnOrAfter } from '../lib/routines'
 import { ACADEMIC_CATEGORY_ID, createDefaultData } from './defaultData'
 
 // Example data so you can try the app without typing everything in.
@@ -62,6 +63,15 @@ export function createSampleData() {
     lectures: [lecture(3, '16:00', '17:30', 'Seminar')],
     notes: 'Bring a printed draft to every seminar.',
   })
+  const routine = (fields) => ({
+    id: createId(),
+    categoryId: null,
+    priority: 'medium',
+    notes: '',
+    createdAt: now,
+    updatedAt: now,
+    ...fields,
+  })
   const uniTask = (fields) => task({ categoryId: ACADEMIC_CATEGORY_ID, ...fields })
   const event = (fields) => ({
     id: createId(),
@@ -77,6 +87,13 @@ export function createSampleData() {
   return {
     ...createDefaultData(),
     courses: [algebra, programming, writing],
+    routines: [
+      routine({ title: 'Water the plants', categoryId: 'personal', priority: 'low', schedule: { type: 'interval', every: 3, unit: 'day' }, nextDue: today }),
+      routine({ title: 'Change the bed sheets', categoryId: 'laundry', schedule: { type: 'interval', every: 2, unit: 'week' }, nextDue: day(-2) }),
+      routine({ title: 'Take out the trash', categoryId: 'cleaning', schedule: { type: 'weekly', weekdays: [1, 4] }, nextDue: firstOccurrenceOnOrAfter({ type: 'weekly', weekdays: [1, 4] }, day(1)) }),
+      routine({ title: 'Pay rent', categoryId: 'errands', priority: 'high', schedule: { type: 'monthly', day: 1 }, nextDue: firstOccurrenceOnOrAfter({ type: 'monthly', day: 1 }, day(1)) }),
+      routine({ title: 'Weekly grocery run', categoryId: 'shopping', schedule: { type: 'weekly', weekdays: [6] }, nextDue: firstOccurrenceOnOrAfter({ type: 'weekly', weekdays: [6] }, day(1)) }),
+    ],
     events: [
       event({ title: 'Linear Algebra midterm', typeId: 'exam', courseId: algebra.id, date: day(9), startTime: '10:00', endTime: '12:00', location: 'Audimax' }),
       event({ title: 'Essay presentation', typeId: 'presentation', courseId: writing.id, date: day(4), startTime: '16:00', endTime: '16:20' }),

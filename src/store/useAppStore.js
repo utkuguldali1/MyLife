@@ -8,6 +8,7 @@ import { createTaskSlice } from './slices/taskSlice'
 import { createCourseSlice } from './slices/courseSlice'
 import { createEventSlice } from './slices/eventSlice'
 import { createAcademicTypeSlice } from './slices/academicTypeSlice'
+import { createRoutineSlice } from './slices/routineSlice'
 
 // Keep only the data lists (not the action functions) — used for saving and backups.
 export function pickData(state) {
@@ -33,6 +34,7 @@ export const useAppStore = create(
       ...createCourseSlice(set),
       ...createEventSlice(set),
       ...createAcademicTypeSlice(set),
+      ...createRoutineSlice(set),
 
       // ── Whole-data actions (Settings page) ──
       replaceAllData(data) {

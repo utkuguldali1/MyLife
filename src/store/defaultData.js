@@ -33,8 +33,8 @@ export function createDefaultData() {
     tasks: [], // one-off to-dos (household, personal and academic)
     courses: [], // university courses with lecture times and links
     events: [], // exams, presentations (things on a date)
-    routines: [], // recurring tasks (Step 5)
-    completionLog: [], // history of completed routines (Step 5, future statistics)
+    routines: [], // recurring tasks (weekly, every N days/weeks, monthly)
+    completionLog: [], // history of completed/skipped routines (for undo and future statistics)
   }
 }
 

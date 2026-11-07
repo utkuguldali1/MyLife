@@ -4,6 +4,7 @@ import { useAppStore } from '../../store/useAppStore'
 import { ACADEMIC_CATEGORY_ID } from '../../store/defaultData'
 import { useToday } from '../../hooks/useToday'
 import { getTaskTiming, groupTasks } from '../../lib/tasks'
+import { splitRoutines } from '../../lib/routines'
 import PageHeader from '../../components/layout/PageHeader'
 import Button from '../../components/ui/Button'
 import EmptyState from '../../components/ui/EmptyState'
@@ -12,6 +13,9 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import TaskForm from '../tasks/TaskForm'
 import TaskItem from '../tasks/TaskItem'
 import TaskSection from '../tasks/TaskSection'
+import RoutineForm from '../routines/RoutineForm'
+import RoutineItem from '../routines/RoutineItem'
+import { useRoutineData } from '../routines/useRoutineData'
 
 export default function DailyLifePage() {
   const today = useToday()
@@ -23,6 +27,8 @@ export default function DailyLifePage() {
   const [form, setForm] = useState(null) // null = closed, { task } = open
   const [showCompleted, setShowCompleted] = useState(false)
   const [confirmClear, setConfirmClear] = useState(false)
+  const [routineForm, setRoutineForm] = useState(null) // null = closed, { routine } = open
+  const { routines, lastEntries } = useRoutineData()
 
   const dailyCategories = categories.filter((c) => c.id !== ACADEMIC_CATEGORY_ID)
   const categoryById = useMemo(
@@ -39,6 +45,15 @@ export default function DailyLifePage() {
     filter === 'all' ? dailyTasks : dailyTasks.filter((t) => t.categoryId === filter)
   const groups = useMemo(() => groupTasks(visibleTasks, today), [visibleTasks, today])
   const carriedOverCount = groups.today.filter((t) => t.dueDate < today).length
+
+  // Routines that are due today (or were done today) appear in "Today" too
+  const routineGroups = useMemo(() => {
+    const visible =
+      filter === 'all' ? routines : routines.filter((r) => r.categoryId === filter)
+    return splitRoutines(visible, lastEntries, today)
+  }, [routines, lastEntries, filter, today])
+  const todayCount = groups.today.length + routineGroups.due.length
+  const todayIsEmpty = groups.today.length === 0 && routineGroups.today.length === 0
 
   const openNew = () => setForm({ task: null })
 
@@ -61,7 +76,7 @@ export default function DailyLifePage() {
         </Button>
       </PageHeader>
 
-      {dailyTasks.length === 0 ? (
+      {dailyTasks.length === 0 && routines.length === 0 ? (
         <EmptyState
           icon={House}
           title="No tasks yet"
@@ -89,7 +104,7 @@ export default function DailyLifePage() {
           <div className="space-y-8">
             <TaskSection
               title="Today"
-              count={groups.today.length}
+              count={todayCount}
               note={
                 carriedOverCount > 0 && (
                   <p className="mb-2 flex items-center gap-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">
@@ -101,12 +116,24 @@ export default function DailyLifePage() {
                 )
               }
             >
-              {groups.today.length === 0 ? (
+              {todayIsEmpty ? (
                 <li className="rounded-lg border border-dashed border-neutral-300 px-4 py-6 text-center text-sm text-neutral-500 dark:border-neutral-700">
                   Nothing due today 🎉
                 </li>
               ) : (
-                groups.today.map(renderTask)
+                <>
+                  {groups.today.map(renderTask)}
+                  {routineGroups.today.map((routine) => (
+                    <RoutineItem
+                      key={routine.id}
+                      routine={routine}
+                      category={categoryById[routine.categoryId]}
+                      lastEntry={lastEntries[routine.id]}
+                      today={today}
+                      onEdit={() => setRoutineForm({ routine })}
+                    />
+                  ))}
+                </>
               )}
             </TaskSection>
 
@@ -151,6 +178,15 @@ export default function DailyLifePage() {
           defaultCategoryId={filter === 'all' ? undefined : filter}
           today={today}
           onClose={() => setForm(null)}
+        />
+      )}
+
+      {routineForm && (
+        <RoutineForm
+          open
+          routine={routineForm.routine}
+          today={today}
+          onClose={() => setRoutineForm(null)}
         />
       )}
 
