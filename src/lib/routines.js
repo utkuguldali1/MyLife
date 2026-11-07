@@ -15,7 +15,7 @@ import { weekdayShort } from './courses'
 //                                                    (day 31 → last day in shorter months)
 // ─────────────────────────────────────────────────────────────
 
-const laterOf = (a, b) => (a > b ? a : b)
+export const laterOf = (a, b) => (a > b ? a : b)
 
 // The given day of a month, or the month's last day if it's shorter
 function dayInMonth(date, day) {
@@ -24,7 +24,7 @@ function dayInMonth(date, day) {
 }
 
 // How far an interval routine jumps ahead: 3 days, 2 weeks…
-function addInterval(isoDate, schedule) {
+export function addInterval(isoDate, schedule) {
   const days = schedule.unit === 'week' ? schedule.every * 7 : schedule.every
   return addDaysISO(isoDate, Math.max(1, days))
 }
