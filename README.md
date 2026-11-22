@@ -1,16 +1,31 @@
-# React + Vite
+# Student Life Organizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A personal organizer for student life: daily tasks, courses, assignments, exams and routines in one place.
 
-Currently, two official plugins are available:
+**Live app:** https://utkuguldali1.github.io/MyLife/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Dashboard:** today's overview with overdue items and upcoming exams
+- **Daily Life:** tasks with priorities, categories, checklists and postpone options
+- **Academic:** courses with lecture times and links, plus assignments, exams and presentations
+- **Routines:** repeating tasks (weekdays, every N days, monthly)
+- **Calendar:** month and week views across all modules
+- **Settings:** dark mode, JSON backup export/import, sample data
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+All data is stored in your browser (localStorage). There are no accounts and no server.
 
-## Expanding the Oxlint configuration
+## Tech
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+React, Vite, Tailwind CSS, React Router, Zustand, date-fns, lucide-react, Vitest.
+
+## Run locally
+
+```bash
+npm install
+npm run dev      # start the dev server at http://localhost:5173
+npm test         # run the tests
+npm run build    # build for production into dist/
+```
+
+Every push to `main` is tested, built and deployed to GitHub Pages automatically (see `.github/workflows/deploy.yml`).
